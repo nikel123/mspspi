@@ -1,0 +1,2 @@
+#!/bin/sh
+exec mspdebug rf2500 gdb
