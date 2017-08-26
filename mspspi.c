@@ -7,7 +7,11 @@
 #define MCLK_16MHZ 1
 #define SMCLK_8MHZ 1
 #define UART_9600 1
-//define UART_115200
+//#define UART_115200 1 // not supported by launchpad uart
+
+#define enable_interrupt()  asm("EINT")
+#define disable_interrupt() asm("DINT")
+#define lpm0_eint() _BIS_SR(LPM0_bits | GIE)
 
 #include "clocks.h"
 #include "sleep.h"
@@ -40,21 +44,42 @@ init() {
   // disable whatchdog
   WDTCTL = WDTPW | WDTHOLD;
 
-  __eint();
-
 }
+
+#define print(msg) uart_tx(msg, sizeof(msg))
+#define println(msg) print(msg "\n\r")
 
 void
 main() {
 
+  char cmd;
+
   init();
 
-  while(1) {
+  println("\n\rmspspi v0.0 Copyright (c) 2017 Andrej Gelenberg <andrej.gelenberg@udo.edu>");
 
-    P1OUT ^= BIT6;
-    msleep(1000);
-    static const char msg[] = "Hello World!\n\r";
-    uart_tx(msg, sizeof(msg));
+  for(;;) {
+
+    print("\n\r> ");
+
+    uart_rx(&cmd, 1);
+
+    print("\n\rcmd: ");
+    uart_tx(&cmd, 1);
+    print("\n\r");
+
+    switch(cmd) {
+
+      case '?':
+      case 'h':
+      case 'H':
+        println("Help TODO");
+        break;
+
+      default:
+        println("unrecognized command");
+
+    }
 
   }
 

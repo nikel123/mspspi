@@ -1,9 +1,10 @@
 // Copyright (c) 2017 Andrej Gelenberg <andrej.gelenberg@udo.edu>
+
 static volatile uint16_t sleep_counter;
 
 static void
 init_sleep_timer() {
-  
+
   // init timer
   // CLK -> SMCLK / 8 (250kHz)
   TACTL   = TASSEL_2 | ID_3 | TACLR;
@@ -17,6 +18,7 @@ __interrupt_vec(TIMER0_A0_VECTOR) void
 timer_ie() {
 
   if ( ! --sleep_counter ) {
+    // stop
     TACCTL0 &= ~CCIE;
     TACTL &= ~MC_1;
     LPM0_EXIT;
@@ -29,8 +31,10 @@ msleep(
     uint16_t msec) {
 
   sleep_counter = msec;
+  // clear and count up to CCR0
   TACTL |= MC_1 | TACLR;
+  disable_interrupt();
   TACCTL0 = CCIE;
-  LPM0;
+  lpm0_eint();
 
 }

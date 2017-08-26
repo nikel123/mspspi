@@ -7,6 +7,7 @@ all: mspspi
 CLEAN += mspspi
 
 mspspi: mspspi.o
+mspspi.s: mspspi.o
 
 .PHONY: falsh
 flash: mspspi
